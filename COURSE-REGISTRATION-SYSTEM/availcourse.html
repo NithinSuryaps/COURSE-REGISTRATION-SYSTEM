@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Courses</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: #0a0e1a;
+            min-height: 100vh;
+            position: relative;
+            color: white;
+            padding: 2rem;
+        }
+        
+        /* Professional 3D Globe Background - Smaller and positioned */
+        .globe-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            perspective: 1000px;
+            background: radial-gradient(ellipse at center, #1a2332 0%, #0a0e1a 70%);
+        }
+        
+        .globe-scene {
+            position: absolute;
+            top: 20%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            transform-style: preserve-3d;
+            animation: globalRotate 60s linear infinite;
+            opacity: 0.4;
+        }
+        
+        .globe {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 25% 25%, #4a90e2 0%, #2171b5 30%, #08519c  100%),
+                linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            box-shadow: 
+                inset -40px -40px 60px rgba(0, 20, 40, 0.8),
+                inset 10px 10px 40px rgba(100, 150, 255, 0.1),
+                0 0 100px rgba(65, 105, 225, 0.2);
+            animation: globeSpin 45s linear infinite;
+            overflow: hidden;
+        }
+        
+        .globe::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 70% 30%, rgba(34, 139, 34, 0.8) 8%, transparent 15%),
+                radial-gradient(circle at 20% 60%, rgba(34, 139, 34, 0.9) 6%, transparent 12%),
+                radial-gradient(circle at 80% 70%, rgba(34, 139, 34, 0.7) 5%, transparent 10%),
+                radial-gradient(circle at 40% 20%, rgba(101, 67, 33, 0.6) 4%, transparent 8%);
+            animation: continentShift 45s linear infinite;
+        }
+        
+        /* Orbital rings - smaller */
+        .orbital-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(100, 200, 255, 0.15);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .ring-1 {
+            width: 700px;
+            height: 700px;
+            animation: orbitRotate1 80s linear infinite;
+            transform: translate(-50%, -50%) rotateX(20deg) rotateY(10deg);
+        }
+        
+        .ring-2 {
+            width: 850px;
+            height: 850px;
+            animation: orbitRotate2 120s linear infinite reverse;
+            transform: translate(-50%, -50%) rotateX(-15deg) rotateY(-20deg);
+        }
+        
+        @keyframes globalRotate {
+            from { transform: rotateY(0deg) rotateX(5deg); }
+            to { transform: rotateY(360deg) rotateX(5deg); }
+        }
+        
+        @keyframes globeSpin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+        
+        @keyframes continentShift {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(-360deg); }
+        }
+        
+        @keyframes orbitRotate1 {
+            from { transform: translate(-50%, -50%) rotateX(20deg) rotateY(10deg) rotateZ(0deg); }
+            to { transform: translate(-50%, -50%) rotateX(20deg) rotateY(10deg) rotateZ(360deg); }
+        }
+        
+        @keyframes orbitRotate2 {
+            from { transform: translate(-50%, -50%) rotateX(-15deg) rotateY(-20deg) rotateZ(0deg); }
+            to { transform: translate(-50%, -50%) rotateX(-15deg) rotateY(-20deg) rotateZ(360deg); }
+        }
+        
+        /* Star field */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite alternate;
+        }
+        
+        .star:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; }
+        .star:nth-child(2) { top: 20%; left: 80%; animation-delay: 0.5s; }
+        .star:nth-child(3) { top: 70%; left: 10%; animation-delay: 1s; }
+        .star:nth-child(4) { top: 80%; left: 90%; animation-delay: 1.5s; }
+        .star:nth-child(5) { top: 30%; left: 70%; animation-delay: 2s; }
+        .star:nth-child(6) { top: 60%; left: 5%; animation-delay: 2.5s; }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.5); }
+        }
+        
+        /* Main content container */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Header section */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 15;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #e1e8f0 50%, #c7d3e3 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+        
+        /* Professional table container */
+        .table-container {
+            background: rgba(15, 25, 40, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+        
+        .courses-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            background: transparent;
+        }
+        
+        .courses-table th {
+            background: rgba(59, 130, 246, 0.15);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 1.25rem 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .courses-table th:first-child {
+            border-top-left-radius: 12px;
+        }
+        
+        .courses-table th:last-child {
+            border-top-right-radius: 12px;
+        }
+        
+        .courses-table td {
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .courses-table tbody tr:hover td {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
+        }
+        
+        .courses-table tbody tr:last-child td:first-child {
+            border-bottom-left-radius: 12px;
+        }
+        
+        .courses-table tbody tr:last-child td:last-child {
+            border-bottom-right-radius: 12px;
+        }
+        
+        /* Course row animations */
+        .course-row {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0px);
+            }
+        }
+        
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Refresh button */
+        .refresh-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 15;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .refresh-button:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px) rotate(180deg);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Course count indicator */
+        .course-count {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .globe-scene {
+                width: 400px;
+                height: 400px;
+                top: 10%;
+                right: -20%;
+            }
+            
+            .ring-1 { width: 500px; height: 500px; }
+            .ring-2 { width: 600px; height: 600px; }
+            
+            .page-title {
+                font-size: 2.2rem;
+            }
+            
+            .table-container {
+                padding: 1.5rem;
+                margin: 0 0.5rem;
+            }
+            
+            .courses-table th,
+            .courses-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.85rem;
+            }
+            
+            .back-button {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.6rem 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .globe-scene {
+                width: 300px;
+                height: 300px;
+                opacity: 0.2;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .courses-table th,
+            .courses-table td {
+                padding: 0.6rem 0.4rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Professional 3D Globe Background -->
+    <div class="globe-container">
+        <div class="globe-scene">
+            <div class="globe"></div>
+            
+            <!-- Orbital Rings -->
+            <div class="orbital-ring ring-1"></div>
+            <div class="orbital-ring ring-2"></div>
+        </div>
+    </div>
+    
+    <!-- Star Field -->
+    <div class="stars">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+    </div>
+    
+    <!-- Back to Home Button -->
+    <a href="index.html" class="back-button">← Back to Home</a>
+    
+    <!-- Refresh Button -->
+    <button class="refresh-button" onclick="window.courseSystem.loadAvailableCourses()" title="Refresh Courses">
+        ↻
+    </button>
+    
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="header">
+            <h1 class="page-title">Available Courses</h1>
+            <p class="page-subtitle">Explore our comprehensive course offerings</p>
+        </div>
+        
+        <div class="table-container">
+            <div id="courseCount" class="course-count" style="display: none;">
+                Loading course count...
+            </div>
+            
+            <table class="courses-table">
+                <thead>
+                    <tr>
+                        <th>Course ID</th>
+                        <th>Course Name</th>
+                        <th>Trainer</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="coursetable">
+                    <tr>
+                        <td colspan="4" class="loading">
+                            <span class="loading-spinner"></span>
+                            Loading courses...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Include the main JavaScript file -->
+    <script src="myscript.js"></script>
+</body>
+</html>

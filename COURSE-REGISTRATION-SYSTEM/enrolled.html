@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enrolled Students - Course Registration System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-bg: #060b14;
+            --secondary-bg: #0f1419;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(148, 163, 184, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: rgba(248, 250, 252, 0.7);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-bg);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Advanced 3D Background Scene */
+        .background-scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            perspective: 2000px;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at center, var(--secondary-bg) 0%, var(--primary-bg) 70%);
+        }
+        
+        /* 3D Floating Geometric Elements */
+        .floating-geometry {
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+        
+        .geometry-1 {
+            top: 15%;
+            right: 10%;
+            width: 200px;
+            height: 200px;
+            animation: float1 20s ease-in-out infinite;
+        }
+        
+        .geometry-2 {
+            bottom: 20%;
+            left: 5%;
+            width: 150px;
+            height: 150px;
+            animation: float2 25s ease-in-out infinite reverse;
+        }
+        
+        .geometry-3 {
+            top: 60%;
+            right: 15%;
+            width: 120px;
+            height: 120px;
+            animation: float3 18s ease-in-out infinite;
+        }
+        
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 30s linear infinite;
+        }
+        
+        .cube-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(59, 130, 246, 0.1) 0%, 
+                rgba(139, 92, 246, 0.05) 50%, 
+                rgba(6, 182, 212, 0.1) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .front { transform: translateZ(50px); }
+        .back { transform: translateZ(-50px) rotateY(180deg); }
+        .right { transform: rotateY(90deg) translateZ(50px); }
+        .left { transform: rotateY(-90deg) translateZ(50px); }
+        .top { transform: rotateX(90deg) translateZ(50px); }
+        .bottom { transform: rotateX(-90deg) translateZ(50px); }
+        
+        /* Enhanced Star Field */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+        
+        .star-small { width: 1px; height: 1px; }
+        .star-medium { width: 2px; height: 2px; }
+        .star-large { width: 3px; height: 3px; }
+        
+        /* Generate multiple stars */
+        .star:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; }
+        .star:nth-child(2) { top: 25%; left: 85%; animation-delay: 1s; }
+        .star:nth-child(3) { top: 40%; left: 10%; animation-delay: 2s; }
+        .star:nth-child(4) { top: 60%; left: 90%; animation-delay: 0.5s; }
+        .star:nth-child(5) { top: 80%; left: 20%; animation-delay: 1.5s; }
+        .star:nth-child(6) { top: 15%; left: 70%; animation-delay: 2.5s; }
+        .star:nth-child(7) { top: 75%; left: 75%; animation-delay: 3s; }
+        .star:nth-child(8) { top: 35%; left: 45%; animation-delay: 0.8s; }
+        
+        /* 3D Grid Lines */
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridShift 20s linear infinite;
+            perspective: 1000px;
+            transform: rotateX(60deg) translateZ(-500px);
+        }
+        
+        /* Main Content Container */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Header with 3D Effects */
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            transform-style: preserve-3d;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            padding: 1rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 15;
+            transform-style: preserve-3d;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .back-button:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-5px) translateZ(10px);
+            box-shadow: 
+                0 20px 40px rgba(59, 130, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, 
+                #ffffff 0%, 
+                #3b82f6 25%, 
+                #8b5cf6 50%, 
+                #06b6d4 75%, 
+                #ffffff 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            animation: gradientShift 8s ease-in-out infinite;
+            transform: translateZ(50px);
+            text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            transform: translateZ(20px);
+            animation: subtitleGlow 6s ease-in-out infinite;
+        }
+        
+        /* Professional 3D Table Container */
+        .table-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(59, 130, 246, 0.1);
+            overflow: hidden;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: containerFloat 10s ease-in-out infinite;
+        }
+        
+        .table-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--accent-blue) 25%, 
+                var(--accent-purple) 50%, 
+                var(--accent-cyan) 75%, 
+                transparent 100%);
+            animation: borderGlow 4s ease-in-out infinite;
+        }
+        
+        /* Student count indicator */
+        .student-count {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .courses-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: transparent;
+            transform: translateZ(10px);
+        }
+        
+        .courses-table th {
+            background: linear-gradient(135deg, 
+                rgba(59, 130, 246, 0.2) 0%, 
+                rgba(139, 92, 246, 0.15) 50%, 
+                rgba(6, 182, 212, 0.2) 100%);
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 1.5rem 1.25rem;
+            text-align: center;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            transform-style: preserve-3d;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .courses-table th:first-child {
+            border-radius: 16px 0 0 0;
+        }
+        
+        .courses-table th:last-child {
+            border-radius: 0 16px 0 0;
+        }
+        
+        .courses-table th::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(255, 255, 255, 0.05) 0%, 
+                transparent 50%, 
+                rgba(255, 255, 255, 0.05) 100%);
+            border-radius: inherit;
+            z-index: -1;
+        }
+        
+        .courses-table td {
+            background: rgba(15, 23, 42, 0.4);
+            color: var(--text-secondary);
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        
+        .courses-table tbody tr {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .courses-table tbody tr:hover {
+            transform: translateZ(10px);
+        }
+        
+        .courses-table tbody tr:hover td {
+            background: linear-gradient(135deg, 
+                rgba(59, 130, 246, 0.15) 0%, 
+                rgba(139, 92, 246, 0.1) 50%, 
+                rgba(6, 182, 212, 0.15) 100%);
+            color: var(--text-primary);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 
+                0 10px 20px rgba(59, 130, 246, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .courses-table tbody tr:last-child td:first-child {
+            border-radius: 0 0 0 16px;
+        }
+        
+        .courses-table tbody tr:last-child td:last-child {
+            border-radius: 0 0 16px 0;
+        }
+        
+        /* Course Row Data Animation */
+        .course-row {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+        
+        .course-row:nth-child(1) { animation-delay: 0.1s; }
+        .course-row:nth-child(2) { animation-delay: 0.2s; }
+        .course-row:nth-child(3) { animation-delay: 0.3s; }
+        .course-row:nth-child(4) { animation-delay: 0.4s; }
+        .course-row:nth-child(5) { animation-delay: 0.5s; }
+        
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-blue);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 1rem;
+            vertical-align: middle;
+        }
+        
+        /* Refresh button */
+        .refresh-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 15;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .refresh-button:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px) rotate(180deg);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Keyframe Animations */
+        @keyframes float1 {
+            0%, 100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+            25% { transform: translateY(-20px) rotateX(15deg) rotateY(90deg); }
+            50% { transform: translateY(0px) rotateX(0deg) rotateY(180deg); }
+            75% { transform: translateY(20px) rotateX(-15deg) rotateY(270deg); }
+        }
+        
+        @keyframes float2 {
+            0%, 100% { transform: translateX(0px) rotateZ(0deg); }
+            25% { transform: translateX(15px) rotateZ(90deg); }
+            50% { transform: translateX(0px) rotateZ(180deg); }
+            75% { transform: translateX(-15px) rotateZ(270deg); }
+        }
+        
+        @keyframes float3 {
+            0%, 100% { transform: translate(0px, 0px) rotateY(0deg); }
+            33% { transform: translate(10px, -10px) rotateY(120deg); }
+            66% { transform: translate(-10px, 10px) rotateY(240deg); }
+        }
+        
+        @keyframes rotateCube {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+            100% { opacity: 0.3; transform: scale(1); }
+        }
+        
+        @keyframes gridShift {
+            0% { transform: rotateX(60deg) translateZ(-500px) translateY(0px); }
+            100% { transform: rotateX(60deg) translateZ(-500px) translateY(50px); }
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes subtitleGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+            50% { text-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+        }
+        
+        @keyframes containerFloat {
+            0%, 100% { transform: translateY(0px) rotateX(0deg); }
+            50% { transform: translateY(-10px) rotateX(2deg); }
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0px);
+            }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-container {
+                padding: 1.5rem;
+            }
+            
+            .table-container {
+                padding: 2rem;
+            }
+            
+            .floating-geometry {
+                opacity: 0.5;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .table-container {
+                padding: 1.5rem;
+                border-radius: 16px;
+            }
+            
+            .courses-table th,
+            .courses-table td {
+                padding: 1rem 0.75rem;
+                font-size: 0.9rem;
+            }
+            
+            .back-button {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.75rem 1.5rem;
+            }
+            
+            .floating-geometry {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .courses-table th,
+            .courses-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .table-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Advanced 3D Background Scene -->
+    <div class="background-scene">
+        <!-- 3D Floating Geometric Elements -->
+        <div class="floating-geometry geometry-1">
+            <div class="cube">
+                <div class="cube-face front"></div>
+                <div class="cube-face back"></div>
+                <div class="cube-face right"></div>
+                <div class="cube-face left"></div>
+                <div class="cube-face top"></div>
+                <div class="cube-face bottom"></div>
+            </div>
+        </div>
+        
+        <div class="floating-geometry geometry-2">
+            <div class="cube">
+                <div class="cube-face front"></div>
+                <div class="cube-face back"></div>
+                <div class="cube-face right"></div>
+                <div class="cube-face left"></div>
+                <div class="cube-face top"></div>
+                <div class="cube-face bottom"></div>
+            </div>
+        </div>
+        
+        <div class="floating-geometry geometry-3">
+            <div class="cube">
+                <div class="cube-face front"></div>
+                <div class="cube-face back"></div>
+                <div class="cube-face right"></div>
+                <div class="cube-face left"></div>
+                <div class="cube-face top"></div>
+                <div class="cube-face bottom"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced Star Field -->
+    <div class="stars">
+        <div class="star star-small"></div>
+        <div class="star star-medium"></div>
+        <div class="star star-small"></div>
+        <div class="star star-large"></div>
+        <div class="star star-small"></div>
+        <div class="star star-medium"></div>
+        <div class="star star-small"></div>
+        <div class="star star-small"></div>
+    </div>
+    
+    <!-- 3D Grid Lines -->
+    <div class="grid-lines"></div>
+    
+    <!-- Back to Home Button -->
+    <a href="index.html" class="back-button">← Back to Home</a>
+    
+    <!-- Refresh Button -->
+    <button class="refresh-button" onclick="window.courseSystem.loadEnrolledStudents()" title="Refresh Students">
+        ↻
+    </button>
+    
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="header">
+            <h1 class="page-title">Enrolled Students</h1>
+            <p class="page-subtitle">View all students currently enrolled in our courses</p>
+        </div>
+        
+        <div class="table-container">
+            <div id="studentCount" class="student-count" style="display: none;">
+                Loading student count...
+            </div>
+            
+            <table class="courses-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email Address</th>
+                        <th>Course Enrolled</th>
+                    </tr>
+                </thead>
+                <tbody id="coursetable">
+                    <tr>
+                        <td colspan="3" class="loading">
+                            <span class="loading-spinner"></span>
+                            Loading enrolled students...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Include the main JavaScript file -->
+    <script src="myscript.js"></script>
+    
+    <script>
+        // Update student count when data loads
+        function updateStudentCount(count) {
+            const countElement = document.getElementById('studentCount');
+            if (countElement && count > 0) {
+                countElement.style.display = 'block';
+                countElement.textContent = `Total Enrolled Students: ${count}`;
+            }
+        }
+        
+        // Override the original loadEnrolledStudents to include count update
+        if (window.courseSystem) {
+            const originalLoad = window.courseSystem.loadEnrolledStudents;
+            window.courseSystem.loadEnrolledStudents = async function() {
+                const result = await originalLoad.call(this);
+                const rows = document.querySelectorAll('.course-row').length;
+                updateStudentCount(rows);
+                return result;
+            };
+        }
+    </script>
+</body>
+</html>
